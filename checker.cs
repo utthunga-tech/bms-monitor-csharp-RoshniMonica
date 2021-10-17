@@ -3,36 +3,87 @@ using System.Diagnostics;
 
 class Checker
 {
-    static bool batteryIsOk(float temperature, float soc, float chargeRate) {
-        if(temperature < 0 || temperature > 45) {
-            Console.WriteLine("Temperature is out of range!");
+    private static bool BatteryIsOk(float temperature, float soc, float chargeRate)
+    {
+        if (!ExecuteMethod(CheckTemperatureIsOk, temperature))
+        {
+            PrintWarningInConsole("Temperature");
             return false;
-        } else if(soc < 20 || soc > 80) {
-            Console.WriteLine("State of Charge is out of range!");
+        }
+
+        if (!ExecuteMethod(CheckSOCIsOk, soc))
+        {
+            PrintWarningInConsole("State of Charge");
             return false;
-        } else if(chargeRate > 0.8) {
-            Console.WriteLine("Charge Rate is out of range!");
+        }
+
+        if (!ExecuteMethod(ChargeRateIsOK, chargeRate))
+        {
+            PrintWarningInConsole("Charge Rate");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void PrintWarningInConsole(string parameter)
+    {
+        Console.WriteLine($"{parameter} is out of range!");
+    }
+
+    private static bool ExecuteMethod(Func<float, bool> conditionFunc, float inputValue)
+    {
+        return conditionFunc.Invoke(inputValue);
+    }
+
+    private static bool CheckTemperatureIsOk(float temperature)
+    {
+        if (temperature < 0 || temperature > 45)
+        {
             return false;
         }
         return true;
     }
 
-    static void ExpectTrue(bool expression) {
-        if(!expression) {
+    private static bool CheckSOCIsOk(float soc)
+    {
+        if (soc < 20 || soc > 80)
+        {
+            return false;
+        }
+        return true;
+    }
+    private static bool ChargeRateIsOK(float chargeRate)
+    {
+        if (chargeRate > 0.8)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private static void ExpectTrue(bool expression)
+    {
+        if (!expression)
+        {
             Console.WriteLine("Expected true, but got false");
             Environment.Exit(1);
         }
     }
-    static void ExpectFalse(bool expression) {
-        if(expression) {
+    private static void ExpectFalse(bool expression)
+    {
+        if (expression)
+        {
             Console.WriteLine("Expected false, but got true");
             Environment.Exit(1);
         }
     }
-    static int Main() {
-        ExpectTrue(batteryIsOk(25, 70, 0.7f));
-        ExpectFalse(batteryIsOk(50, 85, 0.0f));
+    private static int Main()
+    {
+        ExpectTrue(BatteryIsOk(25, 70, 0.7f));
+        ExpectFalse(BatteryIsOk(50, 85, 0.0f));
         Console.WriteLine("All ok");
+        Console.ReadKey();
         return 0;
     }
 }
